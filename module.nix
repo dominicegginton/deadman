@@ -18,6 +18,7 @@
 
     systemd.services.deadmand = {
       description = "Deadman daemon";
+      wantedBy = [ "multi-user.target" ];
       serviceConfig = {
         ExecStart = "${config.programs.deadman.package}/bin/deadmand";
         Restart = "on-failure";
