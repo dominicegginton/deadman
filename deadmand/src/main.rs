@@ -13,6 +13,8 @@ use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, Env
 fn main() {
     init_tracing();
 
+    check_privileges();
+
     info!("deadmand starting");
 
     if !rusb::has_hotplug() {
@@ -41,6 +43,23 @@ fn init_tracing() {
                 .with_file(true),
         )
         .init();
+}
+
+#[cfg(unix)]
+fn check_privileges() {
+    use nix::unistd::Uid;
+
+    if !Uid::effective().is_root() {
+        error!("deadmand must be run with root privileges");
+        eprintln!("Error: deadmand must be run with root privileges");
+        std::process::exit(1);
+    }
+}
+
+#[cfg(not(unix))]
+fn check_privileges() {
+    // On non-Unix systems, skip the privilege check
+    warn!("Privilege checking is not implemented for this platform");
 }
 
 fn handle_command(command: &str, state: Arc<Mutex<DaemonState>>) -> Result<String, String> {

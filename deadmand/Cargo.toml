@@ -9,3 +9,6 @@ deadman-ipc = { path = "../deadman-ipc" }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 rusb = "0.8.0"
+
+[target.'cfg(unix)'.dependencies]
+nix = { version = "0.29", features = ["user"] }
