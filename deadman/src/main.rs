@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Context as AnyhowContext, Result};
+use anyhow::{Context as AnyhowContext, Result, anyhow};
 use clap::{Parser, Subcommand};
 use rusb::{Context, UsbContext};
 
@@ -75,9 +75,7 @@ fn parse_response(response: String) -> Result<String> {
 
 fn list_devices() -> Result<()> {
     let context = Context::new().context("failed to create USB context")?;
-    let devices = context
-        .devices()
-        .context("failed to list USB devices")?;
+    let devices = context.devices().context("failed to list USB devices")?;
 
     if devices.len() == 0 {
         println!("no USB devices found");

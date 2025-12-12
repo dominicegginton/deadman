@@ -8,7 +8,7 @@ use std::time::Duration;
 use deadman_ipc::server::start_ipc_server;
 use rusb::{Context, Device, Hotplug, UsbContext};
 use tracing::{debug, error, info, warn};
-use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
+use tracing_subscriber::{EnvFilter, fmt, layer::SubscriberExt, util::SubscriberInitExt};
 
 fn main() {
     init_tracing();
@@ -137,7 +137,11 @@ fn handle_status(state: Arc<Mutex<DaemonState>>) -> Result<String, String> {
     Ok(lines.join("\n"))
 }
 
-fn handle_tether(bus: &str, address: &str, state: Arc<Mutex<DaemonState>>) -> Result<String, String> {
+fn handle_tether(
+    bus: &str,
+    address: &str,
+    state: Arc<Mutex<DaemonState>>,
+) -> Result<String, String> {
     if !rusb::has_hotplug() {
         warn!("tether requested but hotplug support is not available");
         return Err("libusb hotplug support is not available on this system".to_string());
@@ -315,19 +319,16 @@ fn monitor_device(
         removed_flag: Arc::clone(&removed),
     };
 
-    let registration = match context.register_callback(
-        Some(vendor_id),
-        Some(product_id),
-        None,
-        Box::new(watcher),
-    ) {
-        Ok(reg) => reg,
-        Err(err) => {
-            error!(device = %device_label, error = %err, "failed to register hotplug callback");
-            remove_monitor(&state, key);
-            return;
-        }
-    };
+    let registration =
+        match context.register_callback(Some(vendor_id), Some(product_id), None, Box::new(watcher))
+        {
+            Ok(reg) => reg,
+            Err(err) => {
+                error!(device = %device_label, error = %err, "failed to register hotplug callback");
+                remove_monitor(&state, key);
+                return;
+            }
+        };
 
     info!(device = %device_label, "monitoring device for removal");
 
@@ -480,9 +481,7 @@ struct SelectedDeviceWatcher {
 
 impl SelectedDeviceWatcher {
     fn display_name(&self) -> &str {
-        self.product_name
-            .as_deref()
-            .unwrap_or("selected device")
+        self.product_name.as_deref().unwrap_or("selected device")
     }
 }
 
@@ -515,4 +514,3 @@ impl Hotplug<Context> for SelectedDeviceWatcher {
         }
     }
 }
-
