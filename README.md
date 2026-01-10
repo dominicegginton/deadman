@@ -7,7 +7,7 @@ USB-based dead man's switch for Linux.
 ```nix
 {
   inputs.deadman.url = "github:dominicegginton/deadman";
-  
+
   outputs = { deadman, ... }: {
     nixosConfigurations.hostname = {
       modules = [
