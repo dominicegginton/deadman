@@ -27,12 +27,12 @@ let
       };
     };
 
-  desktopFile = makeDesktopItem {
+  desktopFile = makeDesktopItem rec {
     name = "dev.dominicegginton.${pkg.name}";
     desktopName = pkg.name;
     comment = "Systemd based usb device deadman kill switch";
     exec = "${pkg}/bin/deadman-gui";
-    icon = pkg.name;
+    icon = name;
     categories = [ "Utility" ];
   };
 

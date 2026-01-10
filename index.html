@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Deadman</title>
+    <style>
+      :root {
+        --background: #ffffff;
+        --background-secondary: #000000;
+        --text: #000000;
+        --text-secondary: #ffffff;
+        --link: #0066cc;
+        --light-gray: #f0f0f0;
+      }
+
+      html,
+      body {
+        box-sizing: border-box;
+        font-family: monospace;
+        font-size: 16.5px;
+        background: var(--background);
+        margin: 0;
+        padding: 0;
+        color: var(--text);
+      }
+
+      * {
+        box-sizing: inherit;
+      }
+
+      body {
+        margin: 2rem;
+        max-width: 800px;
+      }
+
+      h1,
+      h2 {
+        margin: 1rem 0;
+        border-bottom: solid 1px var(--text);
+      }
+
+      h1 {
+        font-size: 3rem;
+        letter-spacing: -5px;
+      }
+
+      h2 {
+        font-size: 2.5rem;
+        letter-spacing: -2px;
+      }
+
+      h3 {
+        font-size: 1.5rem;
+        letter-spacing: -1px;
+        margin: 1rem 0;
+      }
+
+      p {
+        margin: 0.7rem 0;
+      }
+
+      header {
+        background-color: var(--background-secondary);
+        color: var(--text-secondary);
+        padding: 1rem;
+        font-size: 0.8rem;
+      }
+
+      header a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        padding: 0.15rem 0.5rem;
+      }
+
+      a {
+        color: var(--link);
+        text-decoration: none;
+      }
+
+      a[external]:after {
+        content: " ▲";
+      }
+
+      code {
+        display: inline-block;
+        padding: 0.5rem;
+        background: var(--light-gray);
+        color: var(--text);
+        overflow-x: auto;
+        width: 100%;
+        white-space: pre;
+      }
+
+      p code {
+        display: inline !important;
+        padding: 2px;
+        width: auto;
+      }
+
+      ul {
+        margin: 0.7rem 0;
+        padding-left: 2rem;
+      }
+
+      li {
+        margin: 0.5rem 0;
+      }
+
+      footer {
+        display: grid;
+        gap: 0.5rem;
+        background-color: var(--background-secondary);
+        color: var(--text-secondary);
+        padding: 1rem;
+        font-size: 0.8rem;
+        margin-top: 2rem;
+      }
+
+      footer a {
+        color: var(--text-secondary);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <a href="https://github.com/dominicegginton/deadman" external>github</a>
+    </header>
+
+    <h1>Deadman</h1>
+
+    <p>
+      A USB-based dead man's switch for Linux systems. Deadman monitors a
+      tethered USB device and automatically locks all user sessions when the
+      device is disconnected, providing physical security through systemd
+      integration.
+    </p>
+
+    <h2>Features</h2>
+    <ul>
+      <li>Real-time USB device monitoring with libusb hotplug support</li>
+      <li>Automatic session locking via systemd-logind</li>
+      <li>IPC-based daemon control for safe privilege separation</li>
+      <li>GTK4/Libadwaita GUI for device selection and management</li>
+      <li>Command-line interface for scripting and automation</li>
+      <li>NixOS module for declarative system configuration</li>
+    </ul>
+
+    <h2>How It Works</h2>
+    <p>
+      Deadman runs as a system daemon (<code>deadmand</code>) that monitors USB
+      devices you've tethered. When a tethered device is unplugged, the daemon
+      immediately locks all active user sessions using
+      <code>loginctl lock-session</code>. This provides a simple but effective
+      physical security mechanism.
+    </p>
+
+    <h3>NixOS Installation</h3>
+    <p>Add the flake input to your system configuration:</p>
+    <code>{
+      inputs.deadman.url = "github:dominicegginton/deadman";
+        
+      outputs = { self, nixpkgs, deadman, ... }: {
+        nixosConfigurations.your-hostname = nixpkgs.lib.nixosSystem {
+          modules = [
+            deadman.nixosModules.default
+            { programs.deadman.enable = true; }
+          ];
+        };
+      };
+    }</code>
+
+    <h2>Usage</h2>
+    <p>List available USB devices:</p>
+    <code>deadman</code>
+
+    <p>Tether a device (bus and address from device listing):</p>
+    <code>sudo deadman tether 1 5</code>
+
+    <p>Check daemon status:</p>
+    <code>sudo deadman status</code>
+
+    <p>Clear all active tethers without locking:</p>
+    <code>sudo deadman severe</code>
+
+    <p>Launch the GUI (automatically requests privileges when needed):</p>
+    <code>deadman-gui</code>
+
+    <h2>Architecture</h2>
+    <p>
+      Deadman consists of four packages: <code>deadmand</code> (system daemon),
+      <code>deadman</code> (CLI client), <code>deadman-gui</code> (GTK4
+      interface), and <code>deadman-ipc</code> (IPC library). The daemon
+      requires root privileges for USB monitoring and session control, while
+      client tools safely communicate through Unix domain sockets with user
+      identity verification.
+    </p>
+
+    <footer>
+      <a href="https://github.com/dominicegginton/deadman" external>github</a>
+      <a href="https://github.com/dominicegginton/deadman/issues" external>
+        issues
+      </a>
+    </footer>
+  </body>
+</html>
