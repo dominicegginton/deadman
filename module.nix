@@ -14,6 +14,8 @@
   config = lib.mkIf config.programs.deadman.enable {
     environment.systemPackages = [ config.programs.deadman.package ];
 
+    environment.pathsToLink = [ "/share/applications" "/share/icons" ];
+
     systemd.packages = [ config.programs.deadman.package ];
 
     systemd.services.deadmand = {
