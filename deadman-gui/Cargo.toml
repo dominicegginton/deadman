@@ -7,6 +7,6 @@ edition = "2021"
 libadwaita = "0.8.0"
 tracing = "0.1.37"
 tracing-log = "0.2.0"
-tracing-subscriber = "0.3.16"
+tracing-subscriber = "0.3.23"
 deadman-ipc = { path = "../deadman-ipc" }
 rusb = "0.9"
