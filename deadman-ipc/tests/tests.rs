@@ -1,9 +1,6 @@
-// Unit tests for the deadman-ipc library
-// These tests use the public API in deadman-ipc/src/lib.rs
-
 use deadman_ipc::client;
 use deadman_ipc::server;
-use rand::{Rng, distributions::Alphanumeric};
+use rand::distr::{Alphanumeric, SampleString};
 use std::fs;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
@@ -11,11 +8,7 @@ use std::thread;
 use std::time::Duration;
 
 fn unique_socket_path() -> String {
-    let rand_str: String = rand::thread_rng()
-        .sample_iter(&Alphanumeric)
-        .take(8)
-        .map(char::from)
-        .collect();
+    let rand_str = Alphanumeric.sample_string(&mut rand::rng(), 8);
     format!("/tmp/deadman-ipc-test-{}.sock", rand_str)
 }
 
