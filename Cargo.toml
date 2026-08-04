@@ -1,4 +1,3 @@
 [workspace]
 resolver = "3"
 members = ["deadman", "deadmand", "deadman-ipc", "deadman-gui"]
-

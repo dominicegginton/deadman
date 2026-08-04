@@ -59,10 +59,9 @@ pub mod server {
         start_ipc_server_with_path(DEFAULT_SOCKET_PATH, handler)
     }
 
-    fn handle_client(
-        mut stream: UnixStream,
-        handler: Arc<dyn Fn(&str) -> Result<String, String> + Send + Sync>,
-    ) {
+    type ClientHandler = Arc<dyn Fn(&str) -> Result<String, String> + Send + Sync>;
+
+    fn handle_client(mut stream: UnixStream, handler: ClientHandler) {
         if let Err(err) = ensure_same_user(&stream) {
             warn!("Rejected client: {err}");
             return;
@@ -116,10 +115,7 @@ pub mod server {
         }
 
         if len as usize != std::mem::size_of::<libc::ucred>() {
-            return Err(io::Error::new(
-                io::ErrorKind::Other,
-                "Unexpected credential size from socket",
-            ));
+            return Err(io::Error::other("Unexpected credential size from socket"));
         }
 
         let current_uid = unsafe { libc::geteuid() };

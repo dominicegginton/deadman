@@ -77,7 +77,7 @@ fn list_devices() -> Result<()> {
     let context = Context::new().context("failed to create USB context")?;
     let devices = context.devices().context("failed to list USB devices")?;
 
-    if devices.len() == 0 {
+    if devices.is_empty() {
         println!("no USB devices found");
         return Ok(());
     }
@@ -96,10 +96,7 @@ fn list_devices() -> Result<()> {
         };
 
         let name = match device.open() {
-            Ok(handle) => match handle.read_product_string_ascii(&descriptor) {
-                Ok(name) => Some(name),
-                Err(_) => None,
-            },
+            Ok(handle) => handle.read_product_string_ascii(&descriptor).ok(),
             Err(_) => None,
         };
 

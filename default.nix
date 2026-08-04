@@ -3,6 +3,7 @@
 , makeDesktopItem
 , systemd
 , rustfmt
+, clippy
 , pkg-config
 , gcc
 , glib
@@ -18,7 +19,7 @@ let
       src = ./.;
       cargoLock.lockFile = ./Cargo.lock;
       runtimeInputs = [ systemd ];
-      nativeBuildInputs = [ rustfmt pkg-config gcc glib ];
+      nativeBuildInputs = [ rustfmt clippy pkg-config gcc glib ];
       buildInputs = [ gtk4 libadwaita cairo ];
       meta = {
         description = "A USB-based deadman's switch for Linux systems";

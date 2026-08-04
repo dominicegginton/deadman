@@ -1,24 +1,19 @@
-use adw::gio::Settings;
-use adw::glib;
 use adw::gtk::{
-    Application, Box, Button, Label, ListBox, MessageDialog, Orientation, ResponseType, Switch,
+    Application, Box, Button, Label, ListBox, MessageDialog, Orientation, ResponseType,
 };
 use adw::prelude::*;
-use adw::{ActionRow, ApplicationWindow};
+use adw::ApplicationWindow;
 use libadwaita as adw;
 use rusb::Context;
 use rusb::UsbContext;
 use tracing::{info, Level};
 
 const APP_ID: &str = "com.dominicegginton.deadman";
-const APP_NAME: &str = "Deadman";
-const APP_DESCRIPTION: &str = "";
 
 use std::cell::RefCell;
 use std::io;
 use std::process::Command;
 use std::rc::Rc;
-use std::thread;
 
 use deadman_ipc::client;
 
@@ -30,11 +25,11 @@ fn main() {
 
     let application = Application::builder().application_id(APP_ID).build();
 
-    application.connect_startup(|_| {
+    let _ = application.connect_startup(|_| {
         adw::init().expect("Failed to initialize libadwaita");
     });
 
-    application.connect_activate(|app| {
+    let _ = application.connect_activate(|app| {
         // helper to show a modal error dialog
         let show_error = move |parent: &adw::gtk::Window, text: &str| {
             let dialog = MessageDialog::builder()
@@ -68,7 +63,7 @@ fn main() {
         // determine which devices are currently tethered (highlighted background).
         if let Ok(ctx) = Context::new() {
             if let Ok(devices) = ctx.devices() {
-                if devices.len() == 0 {
+                if devices.is_empty() {
                     let label = Label::new(Some("no USB devices found"));
                     devices_container.append(&label);
                 } else {
@@ -141,10 +136,7 @@ fn main() {
                         };
 
                         let name = match device.open() {
-                            Ok(handle) => match handle.read_product_string_ascii(&desc) {
-                                Ok(n) => Some(n),
-                                Err(_) => None,
-                            },
+                            Ok(handle) =>handle.read_product_string_ascii(&desc).ok(),
                             Err(_) => None,
                         };
 
@@ -163,7 +155,7 @@ fn main() {
                         }
 
                         // clicking a row will attempt to tether that device via IPC
-                        let label_for_err = Label::new(None);
+                        let _label_for_err = Label::new(None);
                         let label_text_clone = label_text.clone();
                         let app_for_click = app_for_click.clone();
                         btn.connect_clicked(move |b| {
@@ -249,10 +241,10 @@ fn main() {
 
         // severe button handler: ask for confirmation, then call IPC (with elevation fallback)
         let app_for_severe = app_for_click.clone();
-        let show_error_for_severe = show_error.clone();
+        let show_error_for_severe = show_error;
         btn_severe.connect_clicked(move |_| {
             let app_for_severe = app_for_severe.clone();
-            let show_error_for_severe = show_error_for_severe.clone();
+            let show_error_for_severe = show_error_for_severe;
             if let Some(window) = app_for_severe.active_window() {
                 let dialog = MessageDialog::builder()
                     .text("Are you sure?")
